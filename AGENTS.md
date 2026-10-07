@@ -16,8 +16,8 @@
 - Log metadata and identifiers for technical requests, not patient bodies, tokens, SQL parameters, or connection strings.
 - Clearly distinguish implemented behavior, proposed design, and unverified environment-dependent checks.
 - Resolve uncertainties with official documentation or source code; record assumptions instead of inventing conformance claims.
-- Current scope: Phase 0/M1 plus the user-requested early UI milestone (M1-UI). See the roadmap for exact acceptance criteria.
-- UI preview records/actions are fictional and session-only. Only health probes use live APIs until authenticated business endpoints exist.
+- Current scope: Phase 0, M1, M1-UI and M2. Keep M3–M9 deferred; see the roadmap and ADR-016 for acceptance boundaries.
+- Hospital setup uses authenticated persistent APIs. Field-review, matching and patient-history previews remain fictional and session-only.
 
 ## Agent skills
 

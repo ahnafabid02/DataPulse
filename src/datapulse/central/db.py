@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from datapulse.central.config import Settings
 
-EXPECTED_REVISION = "0001_foundation"
+EXPECTED_REVISION = "0002_access"
 
 
 def build_engine(settings: Settings) -> Engine:

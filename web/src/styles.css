@@ -3096,3 +3096,143 @@ main {
     color: #c8d9cd;
   }
 }
+
+/* M2 saved setup and access management, using the shared interface controls. */
+.admin-signin {
+  max-width: 640px;
+  padding: 32px;
+  margin: 24px auto;
+}
+.admin-signin form {
+  margin: 24px 0;
+}
+.admin-signin h2 {
+  margin: 20px 0 12px;
+}
+.admin-signin p,
+.admin-dialog p {
+  line-height: 1.7;
+}
+.admin-dialog {
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.admin-dialog h2 {
+  margin: 12px 30px 16px 0;
+}
+.admin-dialog .eyebrow {
+  margin-bottom: 12px;
+}
+.admin-error {
+  padding: 14px 18px;
+  background: #fff0e8;
+  border: 1px solid #e4b7a1;
+  border-radius: 12px;
+  color: #773b23;
+}
+.admin-notice {
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: #254b3d;
+  background: #eaf4ec;
+}
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.admin-toolbar > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-source {
+  padding: 18px 0;
+  border-top: 1px solid #e7ece8;
+}
+.admin-source > strong {
+  display: block;
+  margin-bottom: 8px;
+}
+.admin-source p,
+.muted {
+  color: #617267;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.admin-source .button {
+  margin-top: 12px;
+}
+.admin-help {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f3f6f2;
+  border-radius: 12px;
+}
+.admin-help summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.admin-help p {
+  margin: 12px 0;
+}
+.admin-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.admin-check input {
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.credential-value {
+  min-height: 100px;
+  resize: vertical;
+  font-family: monospace;
+  overflow-wrap: anywhere;
+}
+.admin-security {
+  border-top: 1px solid #e0e7e0;
+  margin-top: 24px;
+  padding-top: 16px;
+}
+.admin-security .button {
+  margin: 4px 8px 4px 0;
+}
+.admin-audit article {
+  border-bottom: 1px solid #e1e8e1;
+  padding: 18px 0;
+  overflow-wrap: anywhere;
+}
+.admin-audit time {
+  display: block;
+  font-size: 12px;
+  color: #66776a;
+  margin-top: 8px;
+}
+.admin-audit pre {
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+@media (max-width: 640px) {
+  .admin-signin {
+    padding: 22px;
+  }
+  .topbar-right .button {
+    font-size: 11px;
+    padding: 9px;
+  }
+  .admin-toolbar > div {
+    width: 100%;
+  }
+  .admin-toolbar .button {
+    flex: 1 1 auto;
+  }
+}

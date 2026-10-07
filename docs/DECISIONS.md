@@ -95,3 +95,11 @@ credentials or real patient data. No browser persistence. Unconfirmed sample ide
 stay separate even in the preview. Authenticated integration remains M2 and later.
 Styles use a shared responsive design system, plain language, native accessible
 dialog/form controls, reduced-motion support and keyboard focus management.
+
+## ADR-016 — Authenticated local onboarding (supersedes hospital-preview boundary in ADR-015)
+
+Accepted M2 at the user's explicit request. The authoritative decision is
+[authenticated onboarding](adr/0016-authenticated-onboarding.md): persistent
+hospital setup UI, separate administrator/connector principals, revocable hashed
+credentials, extensible role grants, logical retirement and transactional audit.
+Only hospital setup moves beyond previews; M3–M9 capabilities remain deferred.

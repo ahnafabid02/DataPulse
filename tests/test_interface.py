@@ -5,7 +5,7 @@ from datapulse.central.app import create_app
 from datapulse.central.config import Settings
 
 
-def test_interface_serving_does_not_expose_business_routes_or_files(empty_engine, tmp_path):
+def test_interface_serving_does_not_expose_private_files(migrated_engine, tmp_path):
     assets = tmp_path / "assets"
     assets.mkdir()
     (tmp_path / "index.html").write_text("<html><title>DataPulse</title></html>", encoding="utf-8")
@@ -13,7 +13,7 @@ def test_interface_serving_does_not_expose_business_routes_or_files(empty_engine
     (assets / "app.js").write_text("console.log('interface');", encoding="utf-8")
     (tmp_path / "private.env").write_text("private-value", encoding="utf-8")
     settings = Settings(database_url=SecretStr("postgresql+psycopg://demo:test@localhost/test"))
-    with TestClient(create_app(settings, engine=empty_engine, ui_directory=tmp_path)) as client:
+    with TestClient(create_app(settings, engine=migrated_engine, ui_directory=tmp_path)) as client:
         response = client.get("/")
         assert response.status_code == 200
         assert "DataPulse" in response.text
@@ -22,8 +22,7 @@ def test_interface_serving_does_not_expose_business_routes_or_files(empty_engine
         assert client.get("/favicon.svg").headers["content-type"].startswith("image/svg+xml")
         assert client.get("/private.env").status_code == 404
         assert client.get("/assets/%2e%2e/private.env").status_code == 404
-        assert client.post("/v1/sources", json={"name": "test"}).status_code == 404
-        assert set(client.get("/openapi.json").json()["paths"]) == {"/health/live", "/health/ready"}
+        assert client.post("/v1/sources", json={"name": "test"}).status_code == 401
 
 
 def test_unbuilt_interface_fails_explicitly(empty_engine, tmp_path):

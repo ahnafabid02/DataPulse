@@ -5,6 +5,11 @@ from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from conftest import migrate
 from sqlalchemy import create_engine, inspect
+from test_access import (
+    exercise_audit_immutability,
+    exercise_onboarding_security,
+    exercise_registration_lifecycle,
+)
 from test_health import client_for
 from test_migrations import assert_foundation_constraints
 
@@ -28,6 +33,14 @@ def test_postgres_foundation_lifecycle():
         with engine.connect() as connection:
             assert compare_metadata(MigrationContext.configure(connection), Base.metadata) == []
         assert_foundation_constraints(engine)
+        exercise_onboarding_security(engine)
+        exercise_registration_lifecycle(engine, setup=False)
+        exercise_audit_immutability(engine)
+        with engine.begin() as connection:
+            from sqlalchemy.exc import DatabaseError
+
+            with pytest.raises(DatabaseError):
+                connection.exec_driver_sql("TRUNCATE audit_events")
         with client_for(engine) as client:
             assert client.get("/health/ready").status_code == 200
         migrate(engine, "base", downgrade=True)

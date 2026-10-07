@@ -78,8 +78,18 @@ def test_unexpected_failure_redacted(empty_engine, capsys):
     assert "private-patient-value" not in response.text + capsys.readouterr().out
 
 
-def test_openapi_contains_only_foundation_health_paths(empty_engine):
+def test_openapi_contains_only_implemented_milestone_paths(empty_engine):
     with client_for(empty_engine) as client:
         schema = client.get("/openapi.json").json()
-    assert set(schema["paths"]) == {"/health/live", "/health/ready"}
+    assert {
+        "/health/live",
+        "/health/ready",
+        "/v1/sources",
+        "/v1/auth/login",
+        "/v1/onboarding",
+    } <= set(schema["paths"])
+    assert not any(
+        "patient" in path or "mapping" in path or "schema-scan" in path for path in schema["paths"]
+    )
+    assert schema["paths"]["/v1/sources"]["post"]["security"]
     assert "503" in schema["paths"]["/health/ready"]["get"]["responses"]

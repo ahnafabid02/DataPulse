@@ -24,9 +24,7 @@ import {
   LayoutDashboard,
   Link2,
   ListFilter,
-  MapPin,
   Menu,
-  Plus,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -40,10 +38,12 @@ import {
   fields,
   hospitals as initialHospitals,
   timeline,
-  type Hospital,
   type Page,
   type ReviewDecision,
 } from "./data";
+
+import AdminHospitals, { useIdentity } from "./AdminHospitals";
+import { api } from "./admin-api";
 
 const navigation: { id: Page; label: string; icon: typeof Activity }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -177,13 +177,15 @@ function useHealth() {
 export default function App() {
   const [page, setPage] = useState<Page>(initialPage);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [hospitals, setHospitals] = useState(initialHospitals);
+  const access = useIdentity();
+  const [savedHospitalCount, setSavedHospitalCount] = useState<number | null>(
+    null,
+  );
   const [reviews, setReviews] = useState<Record<string, ReviewDecision>>({});
   const [identity, setIdentity] = useState<"pending" | "linked" | "separate">(
     "pending",
   );
   const [toast, setToast] = useState("");
-  const [wizard, setWizard] = useState(false);
   const health = useHealth();
   const main = useRef<HTMLElement>(null);
   const navigationPanel = useRef<HTMLElement>(null);
@@ -224,7 +226,6 @@ export default function App() {
   const reset = () => {
     setReviews({});
     setIdentity("pending");
-    setHospitals(initialHospitals);
     setToast("The preview has been reset. You can explore it again.");
   };
   return (
@@ -323,7 +324,7 @@ export default function App() {
         <div className="sidebar-bottom">
           <span className="avatar small">DP</span>
           <div>
-            <strong>Preview workspace</strong>
+            <strong>Local demo workspace</strong>
             <small>Explore at your own pace</small>
           </div>
           <ChevronDown size={15} />
@@ -365,17 +366,45 @@ export default function App() {
               <CircleHelp size={18} />
               <span>Help</span>
             </button>
-            <span className="avatar tiny">DP</span>
+            <button
+              className="button secondary"
+              onClick={async () => {
+                if (!access.identity) {
+                  navigate("hospitals");
+                  return;
+                }
+                try {
+                  await api("/auth/logout", "POST");
+                  access.setIdentity(null);
+                  setSavedHospitalCount(null);
+                  setToast(
+                    "You’ve signed out. Saved hospital setup remains in DataPulse.",
+                  );
+                } catch (error) {
+                  setToast((error as Error).message);
+                }
+              }}
+            >
+              {access.identity ? "Sign out" : "Administrator sign-in"}
+            </button>
           </div>
         </header>
         <div className="preview-banner">
           <div>
             <Sparkles size={16} />
-            <strong>Guided preview</strong>
+            <strong>
+              {page === "hospitals"
+                ? "Saved setup · local demo"
+                : "Guided preview"}
+            </strong>
             <span className="banner-divider" />
-            <span>Sample records only. Your actions stay in this session.</span>
+            <span>
+              {page === "hospitals"
+                ? "Hospital setup is saved. No database is connected."
+                : "Sample records only. Review and matching actions stay in this session."}
+            </span>
           </div>
-          <button onClick={reset}>
+          <button onClick={reset} disabled={page === "hospitals"}>
             <RefreshCw size={13} />
             Reset preview
           </button>
@@ -385,17 +414,14 @@ export default function App() {
             <Overview
               navigate={navigate}
               health={health}
-              hospitalCount={hospitals.length}
+              hospitalCount={initialHospitals.length}
+              savedHospitalCount={savedHospitalCount}
               pendingFields={pendingFields}
               identityPending={identity === "pending"}
             />
           )}
           {page === "hospitals" && (
-            <Hospitals
-              hospitals={hospitals}
-              navigate={navigate}
-              openWizard={() => setWizard(true)}
-            />
+            <AdminHospitals access={access} onCount={setSavedHospitalCount} />
           )}
           {page === "fields" && (
             <FieldReview
@@ -449,18 +475,6 @@ export default function App() {
           </button>
         </div>
       )}
-      {wizard && (
-        <HospitalWizard
-          onClose={() => setWizard(false)}
-          onAdd={(hospital) => {
-            setHospitals((previous) => [...previous, hospital]);
-            setWizard(false);
-            setToast(
-              "Example hospital added for this session. No real connection has been made.",
-            );
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -469,12 +483,14 @@ function Overview({
   navigate,
   health,
   hospitalCount,
+  savedHospitalCount,
   pendingFields,
   identityPending,
 }: {
   navigate: (page: Page) => void;
   health: ReturnType<typeof useHealth>;
   hospitalCount: number;
+  savedHospitalCount: number | null;
   pendingFields: number;
   identityPending: boolean;
 }) {
@@ -659,8 +675,8 @@ function Overview({
             <strong>{hospitalCount}</strong>
           </div>
           <div className="status-summary">
-            <span>Real hospital connections</span>
-            <strong>Not set up yet</strong>
+            <span>Saved hospital registrations</span>
+            <strong>{savedHospitalCount ?? "View in Hospitals"}</strong>
           </div>
           <small className="checked-at">
             {health.checked
@@ -723,279 +739,6 @@ function CareIllustration() {
         <ShieldCheck size={14} /> Original records are preserved
       </span>
     </div>
-  );
-}
-
-function Hospitals({
-  hospitals,
-  navigate,
-  openWizard,
-}: {
-  hospitals: Hospital[];
-  navigate: (page: Page) => void;
-  openWizard: () => void;
-}) {
-  const [query, setQuery] = useState("");
-  const visible = hospitals.filter((h) =>
-    `${h.name} ${h.location} ${h.system}`
-      .toLowerCase()
-      .includes(query.toLowerCase()),
-  );
-  return (
-    <>
-      <PageHeading
-        eyebrow="CONNECT THE SOURCES OF CARE"
-        title="Your hospitals, in one place."
-        text="Each hospital keeps its own records. DataPulse helps them speak the same language."
-      >
-        <button className="button primary" onClick={openWizard}>
-          <Plus size={18} />
-          Add example hospital
-        </button>
-      </PageHeading>
-      <div className="callout">
-        <Info size={19} />
-        <div>
-          <strong>A safe place to explore</strong>
-          <p>
-            These hospitals are fictional examples. Real hospital setup will be
-            available after secure access is ready. Don’t enter passwords or
-            patient information.
-          </p>
-        </div>
-      </div>
-      <div className="section-heading">
-        <h2>
-          Sample hospitals{" "}
-          <span className="muted-count">{hospitals.length}</span>
-        </h2>
-        <label className="search">
-          <Search size={17} />
-          <input
-            aria-label="Search hospitals"
-            placeholder="Find a hospital…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </label>
-      </div>
-      <div className="hospital-grid">
-        {visible.map((h, index) => (
-          <article className="panel hospital-card" key={h.id}>
-            <div className="hospital-card-top">
-              <span
-                className={`hospital-monogram ${index % 2 ? "purple" : ""}`}
-              >
-                <HospitalIcon size={25} />
-              </span>
-              <Badge tone={h.stage === "Ready for review" ? "green" : "amber"}>
-                {h.stage}
-              </Badge>
-            </div>
-            <h2>{h.name}</h2>
-            <p className="location">
-              <MapPin size={14} />
-              {h.location} · Sample hospital
-            </p>
-            <dl className="hospital-details">
-              <div>
-                <dt>Hospital record system</dt>
-                <dd>{h.system}</dd>
-              </div>
-              <div>
-                <dt>Information stays with</dt>
-                <dd>This hospital</dd>
-              </div>
-            </dl>
-            <div className="mini-steps">
-              <span className="done">
-                <Check size={12} />
-                Added
-              </span>
-              <span className={h.stage === "Ready for review" ? "done" : ""}>
-                <Check size={12} />
-                Understood
-              </span>
-              <span>Review</span>
-            </div>
-            <button
-              className="button secondary full"
-              onClick={() =>
-                navigate(h.stage === "Ready for review" ? "fields" : "help")
-              }
-            >
-              {h.stage === "Ready for review"
-                ? "Review sample fields"
-                : "See the next steps"}
-              <ArrowRight size={16} />
-            </button>
-          </article>
-        ))}
-      </div>
-      {!visible.length && (
-        <Empty
-          title="No matching hospitals"
-          text="Try a hospital name, city, or record system."
-        />
-      )}
-      <div className="bottom-note">
-        <ShieldCheck size={18} />
-        <span>
-          <strong>One hospital at a time.</strong> Each connection is reviewed
-          separately, even when hospitals use the same record system.
-        </span>
-      </div>
-    </>
-  );
-}
-
-function HospitalWizard({
-  onClose,
-  onAdd,
-}: {
-  onClose: () => void;
-  onAdd: (hospital: Hospital) => void;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const [step, setStep] = useState(1);
-  const [name, setName] = useState("");
-  const [city, setCity] = useState("");
-  const [system, setSystem] = useState("OpenMRS");
-  useEffect(() => {
-    dialog.current?.showModal();
-  }, []);
-  return (
-    <dialog
-      ref={dialog}
-      className="wizard-dialog"
-      aria-labelledby="wizard-title"
-      onCancel={onClose}
-    >
-      <button
-        className="dialog-close icon-button"
-        onClick={onClose}
-        aria-label="Close hospital setup"
-      >
-        <X size={20} />
-      </button>
-      <span className="task-icon green">
-        <HospitalIcon size={25} />
-      </span>
-      <div className="eyebrow">STEP {step} OF 2 · PREVIEW ONLY</div>
-      <h2 id="wizard-title">
-        {step === 1
-          ? "Tell us about your example hospital."
-          : "A quick check before you continue."}
-      </h2>
-      <p>
-        {step === 1
-          ? "Use fictional details to try the setup experience. You won’t need any technical information."
-          : "This adds a hospital to this preview session. It does not connect to a real hospital."}
-      </p>
-      <div className="wizard-progress">
-        <span />
-        <span className={step === 2 ? "complete" : ""} />
-      </div>
-      {step === 1 ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (name.trim() && city.trim()) setStep(2);
-          }}
-        >
-          <label className="form-label">
-            Hospital name
-            <input
-              required
-              maxLength={100}
-              placeholder="For example, Demo Community Hospital"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <small>Use a fictional name for this preview.</small>
-          </label>
-          <label className="form-label">
-            City
-            <input
-              required
-              maxLength={80}
-              placeholder="For example, Sylhet"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-          </label>
-          <label className="form-label">
-            Which record system does it use?
-            <select value={system} onChange={(e) => setSystem(e.target.value)}>
-              <option>OpenMRS</option>
-              <option>OpenEMR</option>
-              <option>Another system</option>
-              <option>I’m not sure</option>
-            </select>
-            <small>
-              It’s okay if you don’t know. A technical colleague can help later.
-            </small>
-          </label>
-          <div className="dialog-actions">
-            <button
-              type="button"
-              className="button secondary"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button
-              className="button primary"
-              disabled={!name.trim() || !city.trim()}
-            >
-              Continue
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        </form>
-      ) : (
-        <>
-          <dl className="confirmation-details">
-            <div>
-              <dt>Hospital name</dt>
-              <dd>{name.trim()}</dd>
-            </div>
-            <div>
-              <dt>City</dt>
-              <dd>{city.trim()}</dd>
-            </div>
-            <div>
-              <dt>Record system</dt>
-              <dd>{system}</dd>
-            </div>
-          </dl>
-          <div className="callout">
-            <Info size={18} />
-            <p>No real connection or data transfer will take place.</p>
-          </div>
-          <div className="dialog-actions">
-            <button className="button secondary" onClick={() => setStep(1)}>
-              Go back
-            </button>
-            <button
-              className="button primary"
-              onClick={() =>
-                onAdd({
-                  id: crypto.randomUUID(),
-                  name: name.trim(),
-                  location: city.trim(),
-                  system,
-                  stage: "Setup draft",
-                })
-              }
-            >
-              Add to preview
-              <Check size={16} />
-            </button>
-          </div>
-        </>
-      )}
-    </dialog>
   );
 }
 
@@ -1681,7 +1424,7 @@ function Help({ navigate }: { navigate: (page: Page) => void }) {
           {
             number: "01",
             title: "Tell us which hospital to connect",
-            text: "Start with the hospital name and its record system. A technical colleague handles connection details when secure setup is available.",
+            text: "Sign in as the administrator to save a fictional hospital and its record system. A technical colleague can help with the demo database labels. No database is connected yet.",
             page: "hospitals" as Page,
             action: "Explore hospital setup",
           },
@@ -1758,8 +1501,9 @@ function Help({ navigate }: { navigate: (page: Page) => void }) {
           <strong>What is available today?</strong>
           <p>
             You can explore these sample workflows and check the live system
-            status. Real hospital connections, data reviews, and patient access
-            will be introduced with secure permissions in later stages.
+            status and authenticated, saved hospital setup. Database
+            connections, data reviews, and patient access will be introduced
+            with secure permissions in later stages.
           </p>
         </div>
       </div>

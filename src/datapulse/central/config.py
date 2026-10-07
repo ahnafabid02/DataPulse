@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     database_url: SecretStr
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    # Local HTTP demo only. TLS deployments must enable secure cookies.
+    cookie_secure: bool = False
+    browser_origin: str = "http://127.0.0.1:8000"
 
     @field_validator("database_url")
     @classmethod

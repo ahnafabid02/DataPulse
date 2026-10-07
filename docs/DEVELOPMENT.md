@@ -41,7 +41,7 @@ lists observed results and environment limitations; do not claim CI ran locally.
 
 ## Review checklist
 
-Scope matches M1; future business routes are not present. ORM and Alembic definitions
+Scope matches M2; future clinical/agent/connector routes are not present. ORM and Alembic definitions
 match. Readiness checks revision, not connectivity alone. Source credentials never
 enter central model. Schema structural hashes ignore sample/time noise. Patient data
 or DB errors never enter operational logs. Connector contracts contain no raw SQL.
@@ -52,6 +52,9 @@ Cross-source linkage/provenance decisions align across domain, flow and agent do
 `web/` requires Node 24 and uses its checked-in npm lockfile. Run `npm ci`, `npm test`,
 `npm run build`; generated static assets are ignored and packaged by the Docker
 frontend build stage. Native backend startup requires this build first to serve `/`.
-Static UI routes are excluded from OpenAPI; the business API remains health-only.
-The optional Vite server proxies only health checks. All preview workflows stay
-in memory and contain fictional data. See `UI_DESIGN.md` for integration boundaries.
+Static UI routes are excluded from OpenAPI; authenticated M2 APIs are included.
+The optional Vite server proxies health and `/v1`; configure the backend browser
+origin to its port 5173 for mutations. Hospital setup persists in PostgreSQL.
+Review/matching/history previews remain in memory and contain fictional data.
+See README for hidden-entry administrator bootstrap/recovery and `UI_DESIGN.md`
+for integration boundaries. Passwords must never be CLI arguments or test output.

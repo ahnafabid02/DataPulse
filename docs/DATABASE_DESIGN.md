@@ -10,6 +10,32 @@ Index organization FK. No credentials, clinical rows, or identity links in M1.
 Alembic revision `0001_foundation` creates these tables; application startup never
 creates/migrates schema. Readiness requires the exact configured migration head.
 
+## M2 access and audit
+
+Alembic `0002_access` adds revision (default 1) and retirement timestamps to existing
+registrations without dropping their data. Readiness now requires this revision.
+`principals` has human/connector kind, unique human username, Argon2id password
+hash, unique connector source FK, enabled flag, failed-login counter and lock expiry.
+A check constraint enforces human/source binding; password hashes never belong to
+connector principals. `role_grants` is keyed by principal/role. Roles are mapped to
+permissions in a separate registry and evaluated for every authenticated request.
+`credentials` holds principal FK, session/connector kind, unique verification hash,
+expiry and revocation time. Raw tokens and passwords are absent from these tables.
+
+`audit_events` contains UUID actor/target/source references, actor kind, action,
+UTC occurrence time, server request ID and JSON change metadata. There is no audit
+mutation endpoint. Database triggers reject UPDATE/DELETE; PostgreSQL also rejects
+TRUNCATE. Dropping the triggers/schema requires privileged operator access and is
+not prevented by this demo's bootstrap database owner. Production runtime/migration
+role separation remains required. Successful registration/security commands and
+audit writes share one transaction; failed/denied requests receive separate redacted
+security events. Audit failure prevents successful mutation.
+
+Source changes and key rotation lock their source row. Creating a source locks its
+organization to serialize with organization retirement. Bootstrap locks the principal
+table on PostgreSQL to serialize first-administrator creation. Retirement retains
+rows, principals and historical audit; uniqueness codes are not recycled.
+
 ## Future central tables and constraints
 
 - source_patients: unique(source ID, opaque patient key); demographic snapshots

@@ -11,7 +11,11 @@ SourceSystem: `id`, `organization_id`, `code` unique within organization,
 `ehr_product`, optional `ehr_version`, `database_vendor`, `database_name`,
 `status` (registered/active/suspended), `created_at`. Source IDs never change when
 product versions change. Replacing a deployment requires explicit continuity review.
-M1 implements these two models only; it exposes no registration API.
+M2 exposes authenticated registration APIs. Registrations also have a positive
+optimistic revision and nullable retirement timestamp (`deleted_at`). Codes and
+source ownership are immutable. M2 creates registered sources; suspension blocks
+access and revokes credentials. Retirement preserves identity/history and removes
+the registration from current lists. No status implies verified connectivity.
 
 Connector configuration is hospital-local: source ID, vendor, credential reference,
 TLS settings, database/schema allowlist, sample limits and extraction policy. The

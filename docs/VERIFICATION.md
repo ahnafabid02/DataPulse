@@ -1,10 +1,48 @@
-# Phase 0 and M1 verification
+# DataPulse verification
 
-Verified 2026-10-07 in X:\DataPulse. The architecture/design covers later milestones;
-M1 and the user-requested M1-UI preview are implemented. No patient data was imported. Git initialized on `main`,
-with files uncommitted and no remote configured.
+Verified 2026-10-07 in X:\DataPulse. M1, M1-UI and M2 are implemented; later
+milestones remain planned. No patient data or real hospital infrastructure was used.
+The repository is on `main` with the user-authorized GitHub remote. Earlier results
+below are historical; the latest M2 checks are listed first.
 
-## Observed checks
+## M2 observed checks
+
+- Final backend suite: **49 passed**, including PostgreSQL; no skipped tests.
+  Covers administrator bootstrap/recovery, password hashing/change, login lockout,
+  session expiry/revocation, wrong-origin/header rejection, bounded requests,
+  validation/log secret redaction, cross-source and cross-role denial, credential
+  transport isolation, atomic onboarding, duplicate codes, revisions, suspension,
+  rotation/revocation, retirement, pagination and registration reload/restart.
+- Real PostgreSQL test exercises registration CRUD, connector scope, token rotation,
+  readiness, ORM/migration comparison, and direct audit UPDATE/DELETE/TRUNCATE denial.
+  Upgrade/downgrade pass against a dedicated empty disposable database. Tests leave
+  that database empty. SQLite additionally verifies upgrade preservation of existing
+  M1 registration data and rollback of a business write when its audit insert fails.
+- Frontend: **7 passed**, including signed-out setup, authenticated atomic save,
+  one-time credential display/removal, reloaded registrations and conflict messages.
+  Existing ambiguous-date and conservative sample matching tests still pass.
+- Ruff lint and formatting, strict mypy (14 source files), TypeScript and production
+  frontend build pass. `pip check` reports no broken requirements.
+- Docker frontend/Python build and Compose deployment succeeded; migration
+  `0002_access` applied without dropping normal demo data. Local API and PostgreSQL
+  health checks passed. No administrator password was invented for the user; the
+  hidden-entry operator bootstrap in README remains their first-use setup step.
+- Browser verification used an isolated temporary SQLite-backed fixture on port
+  8001, not the user's demo database: sign-in, two-step setup, one-time key display,
+  dismiss/reload persistence, source suspension and corresponding audit record.
+  Desktop and 390px mobile layouts checked; mobile dialog fits and no horizontal
+  overflow. Mobile navigation opens correctly; browser reported no console errors.
+  The normal packaged workspace is served on port 8000 with PostgreSQL.
+- No hospital DB access, schema extraction, Agent 1/Agent 2, clinical ingestion or
+  patient APIs were introduced. Preview decisions remain fictional and session-only.
+- A final expanded PostgreSQL fixture initially assumed the database contained
+  only the lifecycle source, though earlier checks deliberately created two other
+  sources. The assertion now checks retirement of the specific target. The verified
+  disposable fixtures were cleared and the complete final suite passed.
+- Local checks do not assert hosted GitHub Actions success. The existing test-client
+  dependency emits a deprecation warning; it does not affect test results.
+
+## Historical M1 observed checks
 
 - Python 3.12.10 native virtual environment installed successfully. Dependencies
   pinned in runtime/dev requirements; clean editable install with no build isolation

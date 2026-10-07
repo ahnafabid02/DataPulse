@@ -5,19 +5,21 @@ FHIR R4 with Bangladesh Core compatibility where applicable.
 
 ## Status
 
-Phase 0 architecture and M1 foundation are complete in this revision. M1 provides a
+Phase 0, M1, M1-UI and M2 are complete in this revision. M1 provides a
 central API shell, validated configuration, health checks, structured request logs,
 organization/source database models and migrations, normalized schema contracts,
 and a connector protocol. No mapping agent, identity matcher, clinical ingestion,
 or FHIR server is implemented yet. The requested early English interface is now
 available as M1-UI, with live status checks and clearly labelled sample workflows.
-This is not a production deployment.
+M2 adds administrator sign-in, saved fictional hospital/source setup, separate
+connector identities, key rotation/revocation and append-only activity records.
+This is a local demo, not a production deployment.
 
 ## Architecture and documentation
 
 Start with [architecture](docs/ARCHITECTURE.md), [decisions](docs/DECISIONS.md), and
 [roadmap](docs/IMPLEMENTATION_ROADMAP.md). The documents define future contracts;
-only endpoints explicitly marked M1 exist today.
+only endpoints explicitly marked implemented M1/M2 exist today.
 
 - [Domain model](docs/DOMAIN_MODEL.md)
 - [Data flow](docs/DATA_FLOW.md)
@@ -54,9 +56,26 @@ The database role is a local development bootstrap superuser, not a production r
 This working directory already has an ignored `.env` with a generated random local
 password and the verified containers running. Fresh checkouts need the setup above.
 
-Open **http://127.0.0.1:8000/** for the friendly DataPulse workspace. Its hospital,
-review and patient records are fictional examples; actions reset when the page
-reloads. Only system status is connected to the live backend.
+Create your administrator after migrations. Enter your chosen username/password
+at the prompts; the password is hidden and is never stored as plaintext:
+
+```powershell
+# Docker setup (interactive terminal):
+docker compose exec -it api python -m datapulse.central.admin
+# Or native setup:
+.venv\Scripts\python.exe -m datapulse.central.admin
+```
+
+There is no default administrator password or public signup. Only one administrator
+can be bootstrapped. For local recovery, run the same command with `--reset` and the
+existing username; this revokes all sessions and records an operator audit event.
+
+Open **http://127.0.0.1:8000/#hospitals** and sign in. Save only fictional hospitals
+and source systems; setup persists across reload/restart. Save the source access key
+securely when it is shown once. It authenticates a connector to DataPulse and is
+separate from any hospital database password. You can replace/revoke it in the UI.
+Registration does not connect a database or transfer patient information. Field
+review, patient matching and patient history remain labelled, session-only previews.
 
 `GET /health/live` reports process liveness; `GET /health/ready` checks database
 connectivity and migration revision. `/docs` shows the implemented OpenAPI contract.
@@ -93,4 +112,6 @@ Set-Location ..
 ```
 
 For interface development, `npm.cmd run dev` inside `web/` starts a local preview
-on port 5173 and proxies health checks to the backend on port 8000.
+on port 5173 and proxies health and `/v1` APIs to the backend on port 8000. For this
+development mode, set the backend `DATAPULSE_BROWSER_ORIGIN` to
+`http://127.0.0.1:5173` and restart it; use port 8000 for the built workspace.

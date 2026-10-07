@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Phase 0 design; implemented subset is M1 in the roadmap.
+Status: Phase 0 design; M1, M1-UI and M2 are implemented. Later components remain planned.
 
 ## Deployment and ownership
 
@@ -75,9 +75,11 @@ or arbitrary executable transformation/SQL. No model is chosen or installed in M
 
 An early English React/TypeScript administration shell (M1-UI, ADR-015) is now added
 at the user's request. Vite builds static assets into the central package; FastAPI
-serves them at `/` with hash navigation. Only health probes use live endpoints.
-Guided sample workflows keep state in memory and never write hospital/patient data.
-Actual authenticated review/onboarding integration remains in the later milestones.
+serves them at `/` with hash navigation. M2 integrates authenticated hospital/source
+setup with central PostgreSQL. Browser sessions and connector credentials have
+separate identities and permissions; registration writes commit with audit.
+Field review, matching and patient-history samples stay in memory. ADR-016 records
+the updated UI boundary.
 
 ## Operational boundaries
 

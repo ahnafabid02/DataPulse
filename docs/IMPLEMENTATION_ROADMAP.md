@@ -26,14 +26,21 @@ no unconfirmed identities in combined history, live health failures explained,
 frontend interaction/build checks, backend static-serving tests and browser review.
 No unauthenticated business writes or fake successful connection endpoints.
 
-## M2 — Source onboarding and access control (recommended next)
+## M2 — Source onboarding and access control (implemented)
 Implement authenticated organization/source registration/read APIs, source principal
 binding, rotating credential references, admin/source scopes and append-only audit.
 Acceptance: unauthorized/wrong-source access denied, duplicate source constraint,
 credential redaction, migration tests, OpenAPI contracts and PostgreSQL API tests.
-Do not implement schema introspection or model calls in M2.
+User-confirmed extension: integrate the friendly hospital setup UI with sign-in,
+persistent fictional registrations, one connector identity per source, credential
+rotation/revocation, revision-checked updates/retirement and activity viewing.
+Bootstrap one administrator using an interactive operator command. Future reviewer/
+reader permissions are separate from authentication. Passwords and tokens are hashed;
+successful mutations and audit commit atomically. Audit is protected by DB triggers.
+Do not implement hospital DB connectivity, introspection, extraction, Agent 1,
+Agent 2 or clinical endpoints. Mapping/matching/history remain labelled previews.
 
-## M3 — Source connector and two demo databases
+## M3 — Source connector and two demo databases (next; not implemented)
 Pin verified upstream OpenMRS/OpenEMR images/compose commits and matching DB versions;
 deploy controlled data in separate source databases; implement necessary MySQL/
 MariaDB connector(s), allowlisted introspection/profiling/extraction and schema drift.
