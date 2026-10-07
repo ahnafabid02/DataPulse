@@ -18,3 +18,20 @@
 - Resolve uncertainties with official documentation or source code; record assumptions instead of inventing conformance claims.
 - Current scope: Phase 0/M1 plus the user-requested early UI milestone (M1-UI). See the roadmap for exact acceptance criteria.
 - UI preview records/actions are fictional and session-only. Only health probes use live APIs until authenticated business endpoints exist.
+
+## Agent skills
+
+### Issue tracker
+
+Track issues and specs in GitHub Issues for `ahnafabid02/DataPulse`.
+Before issue operations, read `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the five canonical triage labels. Before triage, read
+`docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Use a single-context domain layout. Before codebase exploration, read
+`docs/agents/domain.md` for glossary and architecture-decision rules.
