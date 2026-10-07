@@ -16,6 +16,7 @@ dependencies = [
   "SQLAlchemy>=2.0,<2.1",
   "alembic>=1.14,<2",
   "psycopg[binary]>=3.2,<4",
+  "PyMySQL==1.1.2",
 ]
 
 [project.optional-dependencies]
@@ -26,11 +27,15 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "datapulse.central" = ["static/*", "static/assets/*"]
+"datapulse.mapping" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
-markers = ["postgres: requires a dedicated empty PostgreSQL test database"]
+markers = [
+  "postgres: requires a dedicated empty PostgreSQL test database",
+  "source_db: requires the two accepted pinned fictional EHR source environments",
+]
 
 [tool.ruff]
 target-version = "py312"

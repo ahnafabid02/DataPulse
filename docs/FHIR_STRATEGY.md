@@ -1,16 +1,23 @@
 # FHIR strategy
 
-Canonical target: HL7 FHIR R4 **4.0.1**, not R4B/R5. Initial package evaluation:
-`hl7.fhir.r4.core#4.0.1` and `bd.fhir.core#0.4.6`. The latter is a Phase 0 candidate
-pin; package availability/checksum, dependencies and patient profile compatibility
-must be verified at M4 before catalog or validator use. BD-Core conformance is a goal,
-not a current claim.
+Canonical target: HL7 FHIR R4 **4.0.1**. The chosen demo mapping catalog is
+`hl7.fhir.r4.core#4.0.1`, using official core StructureDefinitions and terminology
+bindings. M4 verifies/caches the official artifact by manifest, size and pinned
+SHA-256; its manifest declares no dependencies. The catalog is implemented under
+ADR-019. Full FHIR resource-instance validation remains M6.
 
-[DGHS BD-Core guide](https://fhir.dghs.gov.bd/core/) currently identifies version
-0.4.6, informative maturity level 1, based on R4 4.0.1. Do not invent national
-identifier systems or profiles. Review actual StructureDefinitions and terminology
-with clinical/integration owners before selecting applicable profiles. Preserve
-package versions per release/validation result; never silently refresh moving guides.
+The OpenMRS/OpenEMR demo uses global core FHIR. BD-Core is outside demo scope under
+[ADR-018](adr/0018-core-fhir-demo-catalog.md), superseding ADR-002's pre-M4 evaluation
+requirement. A future Bangladesh deployment needs a separate decision on applicable
+profiles, verified packages and national identifier semantics. Preserve package
+versions per release/validation result; never silently refresh moving guides.
+Source EHR product selection does not establish FHIR conformance.
+
+The same core target catalog applies to both source systems; mappings and assemblies
+remain scoped to each source deployment/database. Candidate metadata and validation
+use the verified core definitions. References to profiles in future contracts mean
+definitions allowed by this catalog; adding an implementation guide requires a new
+accepted scope decision. Pin any verified dependencies alongside the core package.
 
 Initial slice: Patient, Organization, Encounter, Observation and Provenance, then
 Condition, Medication/MedicationRequest and related resources as source data requires.

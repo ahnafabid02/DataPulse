@@ -1,5 +1,13 @@
 # Architecture decisions
 
+## ADR-020 — Evidence-backed review and complete clinical coverage
+
+Accepted 2026-10-08 at the user's confirmation. [Evidence-backed review](adr/0020-evidence-backed-review.md)
+expands ADR-019 through fictional clinical seeds and bounded profiling before M5.
+LLM relationship suggestions require deterministic checks and human evidence review.
+Patient is first; all other clinical fields/domains remain required tracked work.
+Local commands precede UI integration; approval binds immutable reviewed versions.
+
 Date: 2026-10-07. Accepted unless explicitly labelled deferred. Major changes require
 a superseding ADR and updates to affected contracts, tests and rollout plans.
 
@@ -8,11 +16,13 @@ Decision: FHIR R4 4.0.1. Context: broad interoperability and the BD-Core base.
 Consequence: nested typed resources/profile validation; no generic full FHIR server
 implementation. R4B/R5 need explicit migration, not library defaults.
 
-## ADR-002 — Bangladesh compatibility
+## ADR-002 — Bangladesh compatibility (demo scope superseded by ADR-018)
 Decision: BD-Core where applicable, evaluate package 0.4.6 before M4.
 Context: DGHS publishes an informative evolving guide.
 Consequence: pin verified packages/profiles and retain package versions; no claim
 of current BD-Core conformance. Review national identifier namespace semantics.
+ADR-018 removes BD-Core evaluation from the demo's M4 requirements; Bangladesh
+deployment compatibility remains a separate future decision.
 
 ## ADR-003 — Source-specific mapping registry
 Decision: mappings scoped to source deployment/database/scan and immutable versions.
@@ -103,3 +113,29 @@ Accepted M2 at the user's explicit request. The authoritative decision is
 hospital setup UI, separate administrator/connector principals, revocable hashed
 credentials, extensible role grants, logical retirement and transactional audit.
 Only hospital setup moves beyond previews; M3–M9 capabilities remain deferred.
+
+## ADR-017 — Pinned demo source connections (expands ADR-016 scope)
+
+Accepted at the user's explicit request after M2 closeout. The authoritative
+[demo connection slice](adr/0017-demo-source-connections.md) gates implementation
+on pinned upstream research and reproducible OpenMRS/OpenEMR environments, then
+proves authenticated read-only database connections and health checks through
+generic vendor adapters. Introspection follows environment/contract acceptance;
+mapping, Agent 1 and M4–M9 remain deferred.
+ADR-019 subsequently expands this boundary to introspection and M4 proposals.
+
+## ADR-018 — Core FHIR demo catalog (supersedes ADR-002 demo scope)
+
+Accepted at the user's explicit request. The [core catalog decision](adr/0018-core-fhir-demo-catalog.md)
+selects `hl7.fhir.r4.core#4.0.1` for the OpenMRS/OpenEMR demo's mapping proposal
+contracts. BD-Core is outside demo scope. Verify/cache core package checksums and
+dependencies at M4; source product choice does not imply FHIR conformance.
+
+## ADR-019 — Hospital-local scans and M4 proposals (expands ADR-017 scope)
+
+Accepted at the user's explicit request to implement complete M4. The
+[M4 decision](adr/0019-m4-proposal-preparation.md) adds metadata-only generic scans,
+an explicitly migrated immutable local SQLite registry, verified R4 core catalog,
+declared FK graph/classification and bounded local-model proposals. Exact compatible
+inputs can reuse stored unapproved proposals. Human approval, executable releases,
+clinical extraction/ingestion and M5-M9 remain deferred.

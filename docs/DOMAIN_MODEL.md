@@ -21,6 +21,12 @@ Connector configuration is hospital-local: source ID, vendor, credential referen
 TLS settings, database/schema allowlist, sample limits and extraction policy. The
 central source record contains neither a password nor a usable connection URI.
 
+The authorized first M3 slice adds a separate hospital-local connection/health
+boundary. [Connection contracts](CONNECTOR_CONTRACTS.md) bind a source UUID to
+a database vendor, exact database, credential reference, TLS policy and bounded
+timeouts. A successful health check proves authenticated read-only access only;
+it does not imply schema compatibility or change central registration status.
+
 ## Normalized schema (M1 contract)
 
 `DatabaseSchema`: `contract_version=1`, `source_system_id`, `database_name`,
@@ -53,7 +59,30 @@ flag. Null fraction derives from counts (undefined for zero sample_count). Rich 
 samples and distribution summaries are future additions. Estimates
 are not asserted to describe the complete DB. Access is recorded as a business audit.
 
-## Mapping registry (future)
+## Schema and proposal registry (implemented M4)
+
+An immutable SchemaScan records a source-bound observation and timestamp. A schema
+snapshot is shared for equal structural fingerprints; comments/defaults remain
+scan-specific observations. The hospital registry uses explicit Alembic provisioning.
+Validated field proposals retain task evidence, exact target/catalog metadata and
+model/template versions in immutable MappingRun observations. They cannot be approved
+or executed through M4. Exact compatible inputs may reuse saved proposals; future
+MappingRelease reuse still requires dependency compatibility and human approval.
+
+## Reviewed mapping registry (future M5)
+
+ADR-020 adds source-bound EvidenceObservations as prerequisites to relationship
+review. Column profiles describe bounded table prefixes, not population distributions.
+Relationship evidence records null keys, duplicate complete-key groups and unmatched
+source rows using source DB equality in one supported snapshot. Limits yield incomplete
+evidence; passing checks still require human semantic review. Evidence is immutable,
+access is audited and no observation grants join approval or patient identity linking.
+Patient is the first release scope; every other clinically relevant source field/domain
+remains required coverage work, with reviewed reasons for operational exclusions.
+
+The demo's verified target catalog is `hl7.fhir.r4.core#4.0.1` (ADR-018/019).
+BD-Core is outside demo scope. Source EHR identity does not change
+the target catalog or establish resource conformance.
 
 `MappingProposal`: proposal ID, source ID/database, schema fingerprint, resource
 assembly ID, mapping version, source field references (native type, join path,

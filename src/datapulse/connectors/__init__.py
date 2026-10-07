@@ -1,1 +1,1 @@
-"""Hospital-side connector boundary. No concrete vendor adapters in M1."""
+"""Hospital-side connection probes; schema/profile/extraction remain future ports."""

@@ -1,8 +1,9 @@
 # Security and engineering boundaries
 
-M2 adds authenticated local demo registration endpoints. No clinical/patient APIs or
-hospital database connections exist. Source credentials in this milestone mean
-central connector authentication tokens, never hospital database credentials.
+M2 adds authenticated local demo registration endpoints. The first M3 slice adds
+hospital-local connection/health probes for two independently installed fictional
+EHR databases; clinical/patient APIs remain deferred. Central connector bearer
+credentials remain separate from hospital-local source DB credentials.
 
 ## Implemented M2 authentication
 
@@ -46,6 +47,61 @@ protection and content-type protection. Database labels reject connection URIs.
 References verified 2026-10-07: [OWASP password storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html),
 [OWASP CSRF controls](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html),
 [argon2-cffi API](https://argon2-cffi.readthedocs.io/en/stable/api.html).
+
+## Implemented M3 source connections
+
+Implemented M3 connection controls: locally resolved source-bound credential
+references, separate SELECT-only DB accounts, exact database/vendor checks, bounded
+connect/read/write timeouts, local-file reads capped at 64 KiB, disabled local-file
+SQL loading, fixed metadata queries and fresh socket cleanup on each check. Excess
+privileges, global/cross-database grants and role grants fail health. A read-only
+transaction complements actual DB permission enforcement. Errors report categories,
+never driver messages, query parameters, SQL or credential values.
+
+Verified TLS defaults require a CA and hostname verification. The pinned driver's
+otherwise possible plaintext fallback is blocked before authentication when server
+TLS is absent. Wrapped certificate errors preserve their TLS failure category.
+The explicit plaintext demo mode accepts only literal loopback addresses; no remote
+plaintext endpoint is allowed. Successful remote TLS is not yet environment-tested.
+Protect ignored source secret files with per-user OS permissions; the file resolver
+is a local demo adapter, not a production secret manager. No model receives these
+credentials. Upstream EHR environment/site secrets remain visible to local Docker
+administrators and stay separate from DataPulse central storage and operational logs.
+
+## Implemented M4 proposal controls
+
+Metadata scans share the same source-bound SELECT-only credentials and verified
+transport checks. Their fixed parameterized metadata queries never read patient
+rows. Table/column/byte/deadline bounds and consistent repeated observations are
+required. Local immutable scan/proposal evidence contains no connection config or
+credentials; per-user file access remains an operator responsibility.
+
+The model receives a bounded host-selected field/candidate task, never DB access.
+All source names/descriptions are untrusted evidence. Host-owned JSON schemas and
+semantic checks reject forged targets/fields/evidence, extra approval/SQL/code fields,
+unsupported operations and unverified terminology. Every selected field receives a
+proposal or unresolved disposition. Only unapproved proposals are persisted; ASTs
+are not executed. No confidence threshold authorizes a mapping.
+
+Ollama is restricted to an explicit loopback address, explicit model tag/digest and
+exact runtime version. Cloud model forwarding, HTTP redirects and ambient proxies
+are rejected. Input/context, output bytes/tokens and a total request deadline bound
+inference. Initial generation plus at most two host-diagnostic correction attempts
+uses no rejected output body. Only model/task digests and technical metrics enter
+generic summaries. Exact-input proposal reuse does not grant approval or sync access.
+
+The remaining trust boundaries below concern later clinical capabilities.
+
+## Implemented ADR-020 evidence controls
+
+ADR-020 evidence capture reads bounded selected column values through the same
+SELECT-only source-bound connection. The trusted local actor and request digest are
+audited before reads; observations retain values only in protected hospital files.
+Stdout/audit errors contain categories/counts/identifiers, not bodies. Snapshots,
+server deadlines and row/scalar/serialized bounds apply; incomplete evidence cannot
+be silently treated as proof. Models do not receive source credentials or SQL.
+Fictional seed writes belong exclusively to the fixed demo infrastructure operator.
+The CLI actor is a trusted local attribution, not authenticated hospital review.
 
 ## Planned trust boundaries
 

@@ -1,19 +1,35 @@
 # DataPulse
 
 Healthcare interoperability platform for heterogeneous hospital databases, targeting
-FHIR R4 with Bangladesh Core compatibility where applicable.
+global HL7 FHIR R4 4.0.1. The demo's chosen mapping catalog is
+`hl7.fhir.r4.core#4.0.1`; BD-Core is outside demo scope
+([ADR-018](docs/adr/0018-core-fhir-demo-catalog.md)). Catalog verification and
+implementation are now included in M4.
 
 ## Status
 
-Phase 0, M1, M1-UI and M2 are complete in this revision. M1 provides a
+Phase 0, M1, M1-UI, M2 and M4 are implemented, with the required M3 connection
+and metadata-introspection slices. M1 provides a
 central API shell, validated configuration, health checks, structured request logs,
 organization/source database models and migrations, normalized schema contracts,
-and a connector protocol. No mapping agent, identity matcher, clinical ingestion,
-or FHIR server is implemented yet. The requested early English interface is now
+and a connector protocol. M4 adds bounded local-model mapping proposals; identity
+matching, clinical ingestion and a FHIR server remain deferred. The early English interface is
 available as M1-UI, with live status checks and clearly labelled sample workflows.
 M2 adds administrator sign-in, saved fictional hospital/source setup, separate
 connector identities, key rotation/revocation and append-only activity records.
 This is a local demo, not a production deployment.
+
+M3 now has [pinned compatibility research](docs/research/M3_COMPATIBILITY_GATE.md),
+two reproducible fictional EHR database environments and generic MySQL/MariaDB
+authenticated read-only connection checks. Follow the [source demo runbook](infra/demo/README.md).
+OpenMRS uses a supported reduced schema-health baseline without rich demo
+terminology imports. Both databases now support generic read-only schema scans,
+immutable local scan/proposal history and bounded mapping proposals against verified
+R4 core metadata. Follow the [M4 runbook](docs/M4_RUNBOOK.md). Proposals are unapproved;
+ADR-020 adds reproducible fictional clinical seeds, bounded column profiling and
+relationship evidence with immutable local read audit. Follow the
+[evidence runbook](docs/EVIDENCE_RUNBOOK.md). Human review/releases are the next M5
+slices; the broader M3 extraction/drift work is not claimed finished.
 
 ## Architecture and documentation
 
@@ -26,12 +42,14 @@ only endpoints explicitly marked implemented M1/M2 exist today.
 - [Database design](docs/DATABASE_DESIGN.md)
 - [API contracts](docs/API_CONTRACTS.md)
 - [Agent 1 mapping](docs/AGENT_1_MAPPING.md)
+- [M4 local schema/catalog/proposal runbook](docs/M4_RUNBOOK.md)
 - [Agent 2 identity](docs/AGENT_2_IDENTITY.md)
 - [FHIR strategy](docs/FHIR_STRATEGY.md)
 - [Security](docs/SECURITY.md)
 - [Development and verification](docs/DEVELOPMENT.md)
 - [Verified results and complete file inventory](docs/VERIFICATION.md)
 - [User interface design and preview boundaries](docs/UI_DESIGN.md)
+- [Source connection contracts](docs/CONNECTOR_CONTRACTS.md)
 
 ## Local setup
 

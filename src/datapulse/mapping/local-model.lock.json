@@ -1,0 +1,9 @@
+{
+  "endpoint": "http://127.0.0.1:11434",
+  "model": "qwen2.5-coder:3b",
+  "model_digest": "f72c60cabf6237b07f6e632b2c48d533cef25eda2efbd34bed21c5e9c01e6225",
+  "runtime_version": "0.33.2",
+  "context_tokens": 16384,
+  "max_prompt_bytes": 10000,
+  "timeout_seconds": 120
+}

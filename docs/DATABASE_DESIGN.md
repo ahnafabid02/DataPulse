@@ -1,5 +1,12 @@
 # Database design
 
+Hospital revision `hospital_0003` adds immutable `evidence_access` metadata events
+and `evidence_observations` with source/scan binding and content digest. Started audit
+commits before source reads; successful observation and completed event commit together.
+Explicit provisioning upgrades existing M4 registries; old scan/proposal rows remain.
+Central migration head is unchanged. Registry owners remain trusted; M5 approval,
+assemblies and release tables are not introduced by this prerequisite slice.
+
 ## M1 central PostgreSQL
 
 `organizations`: UUID PK, code unique/nonblank, name nonblank, UTC created_at.
@@ -36,6 +43,13 @@ organization to serialize with organization retirement. Bootstrap locks the prin
 table on PostgreSQL to serialize first-administrator creation. Retirement retains
 rows, principals and historical audit; uniqueness codes are not recycled.
 
+## M3 external source databases
+
+M3 connection/health makes no central schema change or migration. Demo EHR schemas
+are created/migrated by their original pinned upstream installers, not DataPulse
+ORM or guessed table definitions. Source credentials are hospital-local external
+references. Reader grants are restricted to each separate fictional source database.
+
 ## Future central tables and constraints
 
 - source_patients: unique(source ID, opaque patient key); demographic snapshots
@@ -68,13 +82,33 @@ issuer/identifier locks and uniqueness policy for trusted exact identifier races
 On ambiguous concurrent evidence, retry candidate retrieval and require review.
 Clinical versions persist independently of identity case completion.
 
-## Hospital-local store (future)
+## Hospital-local store (implemented M4)
+
+Explicit packaged Alembic revisions `hospital_0001` and `hospital_0002` provision
+SQLite independently from the central migration head. `schema_snapshots` stores
+deduplicated structural JSON by fingerprint; `schema_scans` retains source UUID,
+timestamp, snapshot reference and observation-specific comments/defaults/hints.
+`mapping_runs` stores source/scan binding, immutable validated proposed/unresolved
+results, task evidence and exact-input reuse digest. UPDATE/DELETE triggers protect
+these rows against accidental edits; a privileged local file owner can still replace
+the file. Run fingerprints must match the bound scan. No source DB credentials,
+clinical records, approvals or executable releases are stored by current commands.
+
+Registry opening requires the exact hospital migration head; schema creation occurs
+only in the explicit provisioning command. A separate registry belongs to each
+hospital deployment. SQLite timeout bounds contention for this single-writer demo;
+production multiwriter/durability, backup/encryption and retention remain future
+acceptance work. Scan-history transactions commit snapshot/observation together.
+
+## Hospital reviewed registry/outbox (future M5/M6)
 
 Separate SQLite registry per deployed hospital process: schema scans/profiles,
 proposal versions, assemblies, reviews, immutable releases, extraction checkpoints
 and outbox. Store profile samples only when needed with expiry/access rules. Secrets
 are external environment/secret manager references, not columns in this registry.
-Enforce local transactions/WAL; multiple writers require PostgreSQL and a new ADR.
+M4 already implements scan/proposal observations above. Reviewed assemblies/releases,
+extraction checkpoints, outbox and WAL/durability testing are future work; multiple
+writers require PostgreSQL and a new ADR.
 
 ## Persistence strategy and migrations
 

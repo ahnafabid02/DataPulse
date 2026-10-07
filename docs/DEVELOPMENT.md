@@ -41,7 +41,9 @@ lists observed results and environment limitations; do not claim CI ran locally.
 
 ## Review checklist
 
-Scope matches M2; future clinical/agent/connector routes are not present. ORM and Alembic definitions
+Scope includes M3 scans, M4 proposals and ADR-020 bounded clinical evidence; clinical,
+approval and agent HTTP routes are absent. Hospital operations are local commands,
+with separately provisioned Alembic SQLite storage. ORM and central Alembic definitions
 match. Readiness checks revision, not connectivity alone. Source credentials never
 enter central model. Schema structural hashes ignore sample/time noise. Patient data
 or DB errors never enter operational logs. Connector contracts contain no raw SQL.
@@ -58,3 +60,38 @@ origin to its port 5173 for mutations. Hospital setup persists in PostgreSQL.
 Review/matching/history previews remain in memory and contain fictional data.
 See README for hidden-entry administrator bootstrap/recovery and `UI_DESIGN.md`
 for integration boundaries. Passwords must never be CLI arguments or test output.
+
+## M3 source checks
+
+Follow `infra/demo/README.md` for the pinned research/startup gate and standalone
+source health commands. Real connector integration requires only the two verified
+empty or exactly recognized seeded fictional fixtures. Set `DATAPULSE_DEMO_TEST_DIR` to the generated
+`.tmp/m3-demo` directory, then run `pytest -m source_db --tb=no`.
+Tests refuse other hosts/ports/source UUIDs or unrecognized clinical baselines and
+exercise zero-row denied DML, temporary DDL, other-database denial and connection/
+credential/TLS failures. Evidence tests read bounded fictional column values; no test
+alters clinical records. Without this opt-in, six source integration cases are skipped in normal
+CI/local checks. Unit coverage still tests connection contracts, credential binding,
+transport policy, redaction and cleanup. The real pinned EHR runs are local deployment
+evidence; hosted CI for this uncommitted change is not claimed.
+
+Run `infra/demo/seed_clinical.py` after source startup/provision before evidence tests.
+The dedicated seed operator owns fictional writes, guarded by version/ownership
+checks; connectors remain SELECT-only. Current local registry revision is
+`hospital_0003`. Read [evidence runbook](EVIDENCE_RUNBOOK.md) before profiling.
+
+## M4 checks
+
+Follow [M4 workflow](M4_RUNBOOK.md). Default tests use synthetic definitions, explicit
+temporary registry migrations and a loopback fake provider server, with no package
+download or local model requirement. They verify forged candidates/paths/source IDs,
+invalid types/ASTs/terminology, uncertain fields, retries, persistence/immutability,
+proposal reuse, runtime/model pins, redirects/cloud forwarding, size limits and total
+HTTP deadlines including slow-drip responses. Source opt-in additionally scans both
+actual DBs twice, saves/reopens registries and tests metadata limit cleanup.
+
+The official package cache and digest-pinned local model evaluation are explicit
+runbook commands, separately recorded in VERIFICATION.md. Synthetic benchmark
+results are not clinical accuracy or calibrated confidence. The hospital migrations
+are packaged with the Python module; they must work in a built wheel, not only an
+editable checkout. Central schema/API contracts remain M2.

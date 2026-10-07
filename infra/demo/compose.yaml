@@ -1,0 +1,97 @@
+name: datapulse-m3-demo
+services:
+  openmrs-db:
+    image: mariadb:10.11.7@sha256:27292753bb759cd22be72e3c8192f1259ef47010c8634b5da0bc886845efe9fd
+    platform: linux/amd64
+    environment:
+      MARIADB_ROOT_PASSWORD: ${OPENMRS_ROOT_PASSWORD:?Run demo.py init}
+      MARIADB_DATABASE: openmrs
+      MARIADB_USER: openmrs_app
+      MARIADB_PASSWORD: ${OPENMRS_APP_PASSWORD:?Run demo.py init}
+    command: [mariadbd, --character-set-server=utf8mb4, --collation-server=utf8mb4_general_ci]
+    ports: ["127.0.0.1:13306:3306"]
+    volumes:
+      - openmrs_db:/var/lib/mysql
+      - ../../.tmp/m3-demo/openmrs-root.cnf:/run/datapulse/root.cnf:ro
+      - ../../.tmp/m3-demo/openmrs-reader.cnf:/run/datapulse/reader.cnf:ro
+    networks: [openmrs]
+    mem_limit: 768m
+    cpus: 1.0
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  openmrs:
+    image: openmrs/openmrs-reference-application-3-backend:3.7.1@sha256:929cfe5dca5f221460e0f4a57abb9294614df5f74fbb3bb865e01b8dfe7a985b
+    platform: linux/amd64
+    environment:
+      OMRS_DB: mariadb
+      OMRS_DB_HOSTNAME: openmrs-db
+      OMRS_DB_NAME: openmrs
+      OMRS_DB_USERNAME: openmrs_app
+      OMRS_DB_PASSWORD: ${OPENMRS_APP_PASSWORD:?Run demo.py init}
+      OMRS_ADMIN_USER_PASSWORD: ${OPENMRS_ADMIN_PASSWORD:?Run demo.py init}
+      OMRS_AUTO_UPDATE_DATABASE: "true"
+      OMRS_CREATE_TABLES: "true"
+      OMRS_JAVA_MEMORY_OPTS: "-Xms256m -Xmx1536m"
+      OMRS_JAVA_SERVER_OPTS: "-Dfile.encoding=UTF-8 -server -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Djava.awt.headlesslib=true -Dproperty.referencedemodata.createDemoPatients=false -Dinitializer.startup.load=disabled"
+    ports: ["127.0.0.1:8081:8080"]
+    volumes:
+      - openmrs_data:/openmrs/data
+    networks: [openmrs]
+    mem_limit: 2560m
+    cpus: 2.0
+    depends_on:
+      openmrs-db:
+        condition: service_healthy
+  openemr-db:
+    image: mariadb:12.3.3@sha256:2bdff1534a7e569fecaf4b10b66ad0d410806e382d9db29ba305448addda97c4
+    platform: linux/amd64
+    environment:
+      MARIADB_ROOT_PASSWORD: ${OPENEMR_ROOT_PASSWORD:?Run demo.py init}
+    command: [mariadbd, --character-set-server=utf8mb4]
+    ports: ["127.0.0.1:13307:3306"]
+    volumes:
+      - openemr_db:/var/lib/mysql
+      - ../../.tmp/m3-demo/openemr-root.cnf:/run/datapulse/root.cnf:ro
+      - ../../.tmp/m3-demo/openemr-reader.cnf:/run/datapulse/reader.cnf:ro
+    networks: [openemr]
+    mem_limit: 768m
+    cpus: 1.0
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  openemr:
+    image: openemr/openemr:8.4.1@sha256:a2205ccbe3cbed02cccd4f4e9a32338dd1c68c26cd87ef8046802b5f65187803
+    platform: linux/amd64
+    environment:
+      MYSQL_HOST: openemr-db
+      MYSQL_PORT: "3306"
+      MYSQL_ROOT_PASS: ${OPENEMR_ROOT_PASSWORD:?Run demo.py init}
+      MYSQL_DATABASE: openemr
+      MYSQL_USER: openemr_app
+      MYSQL_PASS: ${OPENEMR_APP_PASSWORD:?Run demo.py init}
+      OE_USER: demo_admin
+      OE_PASS: ${OPENEMR_ADMIN_PASSWORD:?Run demo.py init}
+    ports: ["127.0.0.1:8082:80"]
+    volumes:
+      - openemr_sites:/var/www/localhost/htdocs/openemr/sites
+      - openemr_logs:/var/log
+    networks: [openemr]
+    mem_limit: 1536m
+    cpus: 2.0
+    depends_on:
+      openemr-db:
+        condition: service_healthy
+volumes:
+  openmrs_db:
+  openmrs_data:
+  openemr_db:
+  openemr_sites:
+  openemr_logs:
+networks:
+  openmrs:
+  openemr:

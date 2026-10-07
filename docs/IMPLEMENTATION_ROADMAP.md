@@ -40,22 +40,54 @@ successful mutations and audit commit atomically. Audit is protected by DB trigg
 Do not implement hospital DB connectivity, introspection, extraction, Agent 1,
 Agent 2 or clinical endpoints. Mapping/matching/history remain labelled previews.
 
-## M3 — Source connector and two demo databases (next; not implemented)
-Pin verified upstream OpenMRS/OpenEMR images/compose commits and matching DB versions;
-deploy controlled data in separate source databases; implement necessary MySQL/
-MariaDB connector(s), allowlisted introspection/profiling/extraction and schema drift.
-Acceptance: compare genuinely different schemas, keys/indexes/type edge cases,
-read-only permissions, sampling bounds, stable cursors and reproducible controlled data.
-Exact demo versions remain an explicit research/deployment gate, not guessed in M1.
+## M3 — Source connector and two demo databases (connection/introspection implemented)
+User-confirmed sequence (ADR-017): close out M2, complete the documented upstream
+research/compatibility gate, reproduce both pinned source environments, then implement
+generic vendor connectors for authenticated database connection and health checks.
+The gate records exact EHR/database versions and image digests, startup, credentials,
+schema characteristics, direct DB suitability, resource budgets, seed/reset procedures,
+licenses and connector requirements. No floating tags. OpenMRS/OpenEMR are demo
+integrations, never special cases in core connector code.
+Acceptance for this slice: independent fictional source databases initialized from
+their pinned EHR installers; read-only connector identities; successful authenticated
+connection and health checks for both; bad credentials/unreachable/wrong-database
+failures redacted and tested; reproducible reset and startup; no source secrets centrally.
+Schema introspection begins only after both environments and connection contracts are
+reproducible and tested. ADR-019 now adds metadata-only base-table introspection and
+the immutable local scan registry, tested against both accepted sources. Capture
+declared keys only; enforce allowlists/count/byte/deadline bounds. ADR-020 now adds
+bounded clinical profiling and relationship evidence as pre-M5 prerequisites.
+Extraction/cursors and runtime drift remain later M3 slices. Full M3 is not claimed complete.
+Compatibility/deployment evidence is in `docs/research/M3_COMPATIBILITY_GATE.md`;
+startup/reset and local health commands are in `infra/demo/README.md`.
 
-## M4 — FHIR catalog and mapping proposal contracts
-Verify/cache pinned R4 and BD-Core packages/checksums/dependencies; normalized FK
+## M4 — FHIR catalog and mapping proposal contracts (implemented, ADR-019)
+Verify/cache `hl7.fhir.r4.core#4.0.1` and its checksum/dependencies (ADR-018;
+BD-Core is outside demo scope); normalized FK
 graph, table domain classification, bounded candidate retrieval; provider abstraction
 and validated task output with local adapter. Acceptance: bounded prompts, no secrets
 or arbitrary SQL, invalid JSON/candidate/path/AST rejected, ambiguous fields retained.
 Evaluate model accuracy/hardware; do not auto-approve mappings.
 
+Observed: official core archive verified/cached with manifest/checksum lock; normalized
+declared FK graph and lexical table classification; datatype/choice-aware bounded
+retrieval; typed tasks/AST output checks; runtime/model-pinned Ollama adapter; bounded
+correction and retained unresolved fields. Local SQLite stores immutable scan/task/
+proposal evidence with exact-input reuse, without M5 approval/release commands.
+The local evaluation uses a small synthetic metadata benchmark, not clinical records.
+Run and acceptance details: [M4 runbook](M4_RUNBOOK.md), [verification](VERIFICATION.md).
+
 ## M5 — Hospital registry and review
+
+ADR-020 confirms bounded clinical evidence before review: reproducible fictional
+seeds for both pinned sources, local profiling and complete/incomplete deterministic
+relationship checks with immutable observations/access audit. This first prerequisite
+slice does not implement approval or extraction cursors. Patient review/releases come
+first, then encounters/observations and all discovered clinical domains; every source
+column stays in the coverage inventory. Human investigation can supply more evidence;
+judgment alone cannot bypass relationship checks. Commands/review files precede M8 UI.
+See [evidence runbook](EVIDENCE_RUNBOOK.md).
+
 Immutable mappings/assemblies/releases, human approval tied to digest, lifecycle and
 schema compatibility checks, hospital registry migrations. Acceptance: edits cannot
 reuse approval, stale/concurrent review blocked, repeat grouping/join semantics tested.

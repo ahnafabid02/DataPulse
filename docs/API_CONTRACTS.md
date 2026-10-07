@@ -13,6 +13,11 @@ M1-UI adds `GET /` (English application shell), `/assets/*` (build assets) and
 navigation (`/#hospitals`, `/#fields`, `/#identity`, `/#patients`, `/#help`).
 M2 adds the authenticated APIs below. Review/matching/history preview actions stay
 in browser memory and never call business endpoints.
+M3 scans and M4 catalog/proposals use hospital-local commands and SQLite storage;
+they introduce no HTTP endpoints or frontend integration. See [M4 runbook](M4_RUNBOOK.md).
+ADR-020 evidence capture also uses hospital-local commands and explicitly migrated
+SQLite observations/read audit; [evidence contracts](EVIDENCE_RUNBOOK.md) describe
+source/scan binding, profiles, composite relationship checks and limits.
 
 Responses include a server-generated UUID `X-Request-ID`; request logs contain only
 ID, method, response status and duration.

@@ -16,7 +16,7 @@
 - Log metadata and identifiers for technical requests, not patient bodies, tokens, SQL parameters, or connection strings.
 - Clearly distinguish implemented behavior, proposed design, and unverified environment-dependent checks.
 - Resolve uncertainties with official documentation or source code; record assumptions instead of inventing conformance claims.
-- Current scope: Phase 0, M1, M1-UI and M2. Keep M3–M9 deferred; see the roadmap and ADR-016 for acceptance boundaries.
+- Current scope: M1–M4 plus the confirmed ADR-020 sequence: fictional seeds and bounded evidence first, then hospital-local M5 review/releases, Patient first and all clinical domains tracked. Read `docs/EVIDENCE_RUNBOOK.md`, `docs/M4_RUNBOOK.md` and `docs/AGENT_1_MAPPING.md` before evidence/registry changes. Preserve source pins and human approval; M6–M9 and extraction cursors remain deferred.
 - Hospital setup uses authenticated persistent APIs. Field-review, matching and patient-history previews remain fictional and session-only.
 
 ## Agent skills

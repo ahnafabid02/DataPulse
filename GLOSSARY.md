@@ -34,3 +34,29 @@ _Avoid_: Erasing history
 **Preview**:
 A fictional demonstration workflow whose review decisions do not affect saved
 registrations or actual patient records.
+
+**FHIR target catalog**:
+The agreed collection of FHIR resource and element definitions that hospital
+information may be mapped to. Source-specific mappings share this target vocabulary.
+_Avoid_: Hospital schema catalog
+
+**Schema scan**:
+An observation of a source database's structure at a particular time. It describes
+tables, fields and declared relationships, rather than patient records.
+
+**Schema fingerprint**:
+The identity of an observed structural shape within a source system. Observations
+can share the same structural shape while retaining different descriptive evidence.
+
+**Mapping proposal**:
+A suggested interpretation of source information in the agreed FHIR vocabulary.
+It requires review before becoming an approved mapping.
+_Avoid_: Approved mapping, executable mapping
+
+**Relationship evidence**:
+Observed support or contradictions for a proposed relationship between source records.
+Matching values alone do not establish that records belong together.
+
+**Clinical coverage**:
+The clinical information a reviewed mapping release accounts for, together with visible
+unresolved work. A Patient-only release does not cover an entire medical record.
