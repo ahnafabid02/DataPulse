@@ -1,0 +1,20 @@
+# Project instructions
+
+- Read `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, and the relevant domain documents before implementation or architecture changes.
+- Follow `docs/IMPLEMENTATION_ROADMAP.md`. Implement the smallest coherent milestone; do not jump to agent or UI work.
+- Inspect existing code, migrations, contracts, and tests before modifying them. Never assume generated code is correct.
+- Keep changes scoped to the task and preserve component boundaries.
+- Hospital connectors own source credentials and database access. Models never receive credentials or execute arbitrary SQL.
+- Agent 1 proposes per-source mappings; human approval precedes deterministic runtime use.
+- Agent 2 preserves source identities and links them to global identities. LLM reasoning alone never authorizes a patient link.
+- Preserve clinical source data, mapping/transformation versions, and provenance.
+- FHIR R4 4.0.1 is the interoperability target. Do not silently change this or any major ADR.
+- Record architecture changes in `docs/DECISIONS.md` and update affected contracts/documentation in the same change.
+- Add or update meaningful tests, including failure cases. Run relevant tests, lint, and type checks before finishing.
+- Apply database changes through Alembic; do not use ORM `create_all` in application startup.
+- Never commit credentials, patient exports, local environment files, or model prompts containing patient data.
+- Log metadata and identifiers for technical requests, not patient bodies, tokens, SQL parameters, or connection strings.
+- Clearly distinguish implemented behavior, proposed design, and unverified environment-dependent checks.
+- Resolve uncertainties with official documentation or source code; record assumptions instead of inventing conformance claims.
+- Current scope: Phase 0/M1 plus the user-requested early UI milestone (M1-UI). See the roadmap for exact acceptance criteria.
+- UI preview records/actions are fictional and session-only. Only health probes use live APIs until authenticated business endpoints exist.
